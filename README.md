@@ -2,21 +2,21 @@
 
 [![Release](https://img.shields.io/docker/v/jcpd/dknr-daikin?sort=semver)](https://img.shields.io/docker/v/jcpd/dknr-daikin?sort=semver)
 [![Pull](https://img.shields.io/docker/pulls/jcpd/dknr-daikin)](https://img.shields.io/docker/pulls/jcpd/dknr-daikin)
-[![Issue](https://img.shields.io/github/issues/jcdenis/dknr-daikin)](https://img.shields.io/github/issues/jcdenis/dknr-daikin)
-[![License](https://img.shields.io/github/license/jcdenis/dknr-daikin)](https://github.com/JcDenis/dknr-daikin/blob/master/LICENSE)
+[![Issue](https://img.shields.io/github/issues/dknr-domotic/dknr-daikin)](https://img.shields.io/github/issues/dknr-domotic/dknr-daikin)
+[![License](https://img.shields.io/github/license/dknr-domotic/dknr-daikin)](https://github.com/dknr-domotic/dknr-daikin/blob/master/LICENSE)
 
 
 ## A propos
 
 **dknr-daikin** est un projet consacré au pilotage, à la récupération et à l'exploitation des données des PAC Daikin en local. Ce projet n'utilise pas le cloud Daikin mais attaque directement l'API des unités Daikin.
 
-[![Dashboard Screenshot detail](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)
+[![Dashboard Screenshot detail](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)
 
-[![Dashboard Screenshot chart](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)
+[![Dashboard Screenshot chart](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)
 
-[![Dashboard Screenshot add](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot3.png)](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot3.png)
+[![Dashboard Screenshot add](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot3.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot3.png)
 
-[![Dashboard Screenshot mqtt](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot4.png)](https://github.com/JcDenis/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot4.png)
+[![Dashboard Screenshot mqtt](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot4.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot4.png)
 
 
 ## Fonctionnalités
@@ -63,11 +63,11 @@ Utilisez le fichier docker-compose.yaml à la racine du dépôt en fournissant l
 
 ## Contribuer
 
-Ce projet est **open-source**, vous pouvez participer en créant des [tickets](https://github.com/JcDenis/dknr-daikin/issues) ou en proposant de [requêtes](https://github.com/JcDenis/dknr-daikin/pulls) sur le dépôt github du projet.
+Ce projet est **open-source**, vous pouvez participer en créant des [tickets](https://github.com/dknr-domotic/dknr-daikin/issues) ou en proposant de [requêtes](https://github.com/dknr-domotic/dknr-daikin/pulls) sur le dépôt github du projet.
 
 
 ## Voir aussi
 
-- [DKNR Teleinfo](https://github.com/JcDenis/dknr-teleinfo)
-- [DKNR APSystems](https://github.com/JcDenis/dknr-apsystems)
-- [DKNR Daikin](https://github.com/JcDenis/dknr-daikin)
+- [DKNR Teleinfo](https://github.com/dknr-domotic/dknr-teleinfo)
+- [DKNR APSystems](https://github.com/dknr-domotic/dknr-apsystems)
+- [DKNR Daikin](https://github.com/dknr-domotic/dknr-daikin)
