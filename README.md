@@ -10,6 +10,8 @@
 
 **dknr-daikin** est un projet consacré au pilotage, à la récupération et à l'exploitation des données des PAC Daikin en local. Ce projet n'utilise pas le cloud Daikin mais attaque directement l'API des unités Daikin.
 
+La documentation détaillée est sur [dknr-domotic.github.io](https://dknr-domotic.github.io/sources/daikin/).
+
 [![Dashboard Screenshot detail](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot.png)
 
 [![Dashboard Screenshot chart](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)](https://github.com/dknr-domotic/dknr-daikin/blob/master/sshot/dknr-daikin_screenshot2.png)
