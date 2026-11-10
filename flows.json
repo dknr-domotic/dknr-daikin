@@ -350,40 +350,15 @@
             "label": true
         },
         "nodes": [
-            "c8eb89f58045e15e",
             "6248fde82b3cdbff",
-            "44abed769ee1380c",
-            "d1a00b5dc10e982b",
-            "3e5de0886a5f8c2c",
-            "7852ef286f2c2adf",
-            "a85624b31ac1f02c",
-            "763e400840edda51",
-            "84388804b70e1254",
-            "2382820f9c313403",
-            "2e4d451cf446e8b3",
-            "2e1b4893a4984c47",
-            "57154685c24a3c7c",
-            "f417a301a4a68e2b",
-            "06559300429f64a8",
-            "10ec035142a92af2",
-            "32b1f0c235b1e673",
-            "976739752c4c9fd5",
-            "602e794e16cc89dd",
-            "a2f287946aea18f9",
-            "1ae0889c3294734f",
-            "f0cfdcaede41be95",
-            "8200f72f31e4caf6",
-            "de359db72e3bf974",
-            "0fba116c15010acd",
-            "12a03aa6dd7165cd",
-            "a267350c61f95127",
-            "5cd45b3fd180da8a",
-            "2304cdc94811f7ae"
+            "2085a2e230700b80",
+            "1a56fa9d429c238b",
+            "eef73305d77ac29a"
         ],
         "x": 104,
         "y": 2079,
-        "w": 1962,
-        "h": 382
+        "w": 682,
+        "h": 142
     },
     {
         "id": "c2a4c908aa1cf2e9",
@@ -725,7 +700,7 @@
         "type": "ui-group",
         "name": "Surveiller un climatiseur",
         "page": "d462864cc3afd73b",
-        "width": 6,
+        "width": "12",
         "height": 1,
         "order": 1,
         "showTitle": true,
@@ -3285,38 +3260,6 @@
         "wires": []
     },
     {
-        "id": "c8eb89f58045e15e",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "exists",
-        "property": "#:(memoryOnly)::controls",
-        "propertyType": "global",
-        "rules": [
-            {
-                "t": "hask",
-                "v": "payload",
-                "vt": "msg"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 2,
-        "x": 870,
-        "y": 2300,
-        "wires": [
-            [
-                "a85624b31ac1f02c"
-            ],
-            [
-                "7852ef286f2c2adf"
-            ]
-        ]
-    },
-    {
         "id": "6248fde82b3cdbff",
         "type": "link in",
         "z": "48135a54600713e8",
@@ -3328,617 +3271,83 @@
             "9dad50003e57f1fc"
         ],
         "x": 145,
-        "y": 2420,
+        "y": 2120,
         "wires": [
             [
-                "44abed769ee1380c",
-                "7852ef286f2c2adf"
+                "1a56fa9d429c238b"
             ]
         ]
     },
     {
-        "id": "44abed769ee1380c",
+        "id": "2085a2e230700b80",
+        "type": "inject",
+        "z": "48135a54600713e8",
+        "g": "c0ef7adf5b766dab",
+        "name": "refresh 5 min",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "refresh",
+        "x": 170,
+        "y": 2180,
+        "wires": [
+            [
+                "1a56fa9d429c238b"
+            ]
+        ]
+    },
+    {
+        "id": "1a56fa9d429c238b",
         "type": "function",
         "z": "48135a54600713e8",
         "g": "c0ef7adf5b766dab",
-        "name": "get names",
-        "func": "flow.set('current_chart', '', 'memoryOnly');\n\ndelete msg.dashboard;\ndelete msg.tab;\ndelete msg.name;\ndelete msg.version;\ndelete msg.title;\ndelete msg.full;\ndelete msg.git;\ndelete msg.lang;\ndelete msg.menus;\ndelete msg.titles;\ndelete msg.options;\ndelete msg.keys;\n\nmsg.payload = '';\nmsg.class = '';\nmsg.enabled = true;\nmsg.options = [{\n    'label':'',\n    'value':'',\n    'dropdown':'name'\n}];\n\nlet i = 1;\nlet units = global.get('units', 'default');\nif (typeof units === 'object') {\n    for(const host in units) {\n        msg.options[i++] = {\n            'label': units[host]['name'],\n            'value': host,\n            'dropdown': 'name'\n        }\n    }\n}\n\nif (i == 1) {\n    node.send([null, null]);\n}\nelse if (i == 2) {\n    msg.payload = msg.options[1]['value'];\n    node.send([msg, null]);\n    msg.class = 'remove';\n    msg.enlabed = false;\n    node.send([null, msg]);\n}\nelse {\n    node.send([null, msg]);\n}\n\nreturn;",
-        "outputs": 2,
+        "name": "chart - data",
+        "func": "// Energy charts of the air conditioners, from the day power of each unit\n// (get_day_power_ex: 24 values per day, in 0.1 kWh, for today and yesterday, heating and cooling)\nconst FIELDS = [\n    { 'key': 'heat', 'name': 'Chaud', 'slot': 2 },\n    { 'key': 'cool', 'name': 'Froid', 'slot': 1 }\n];\nconst DAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];\nconst DAYS_LONG = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];\nconst MONTHS_LONG = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];\n\nfunction pad(n) {\n    return String(n).padStart(2, '0');\n}\n\n// a tab change to another page: nothing to do\nif (typeof msg.tab === 'string' && msg.tab !== 'chart') {\n    return null;\n}\n\nconst units = global.get('units', 'default') || {};\nconst controls = global.get('controls', 'memoryOnly') || {};\n\nif (msg.topic === 'select') {\n    flow.set('current_chart', String(msg.payload || ''), 'memoryOnly');\n}\n\n// units list, the selected one is kept for all browsers\nconst meters = Object.keys(units).map(host => ({\n    'value': host,\n    'label': (units[host].name || host) + (units[host].location ? ' - ' + units[host].location : '')\n}));\nlet host = flow.get('current_chart', 'memoryOnly') || '';\nif (typeof units[host] !== 'object') {\n    host = meters.length > 0 ? meters[0].value : '';\n    flow.set('current_chart', host, 'memoryOnly');\n}\n\nif (host === '') {\n    return { 'payload': { 'error': 'Aucun climatiseur, ajoutez-en un depuis la page Ajouter.', 'meters': [], 'periods': [], 'fields': [] } };\n}\n\n// hourly series in Wh, null when the unit did not send it\nconst control = controls[host] || {};\nconst series = k => control[k] && Array.isArray(control[k].value)\n    ? control[k].value.map(v => Math.max(0, Number(v) || 0) * 100)\n    : null;\nconst today = { 'heat': series('curr_day_heat'), 'cool': series('curr_day_cool') };\nconst yesterday = { 'heat': series('prev_1day_heat'), 'cool': series('prev_1day_cool') };\nconst fields = FIELDS.filter(f => today[f.key] || yesterday[f.key]);\n\nif (fields.length === 0) {\n    return { 'payload': { 'error': 'Pas encore de consommation reçue de ce climatiseur, elle est relevée toutes les 2 minutes.', 'meters': meters, 'selected': host, 'periods': [], 'fields': [] } };\n}\n\nconst now = new Date();\nconst midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());\n\nfunction bar(key, label, title, values) {\n    let total = 0;\n    for (const k in values) {\n        total += values[k];\n    }\n\n    return { 'key': key, 'label': label, 'title': title, 'values': values, 'total': total };\n}\n\n// last 24 hours: yesterday after the current hour, then today up to the current hour\nlet hours = [];\nfor (let i = 23; i >= 0; i--) {\n    const d = new Date(now.getTime() - i * 3600000);\n    const h = d.getHours();\n    const day = d >= midnight ? today : yesterday;\n    let values = {};\n    for (const f of fields) {\n        if (day[f.key] && day[f.key][h] !== undefined) {\n            values[f.key] = day[f.key][h];\n        }\n    }\n    hours.push(bar('h' + i, h + 'h', pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' de ' + h + 'h à ' + ((h + 1) % 24) + 'h', values));\n}\n\n// yesterday and today\nlet days = [];\n[[yesterday, 1], [today, 0]].forEach(([day, back]) => {\n    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - back);\n    let values = {};\n    for (const f of fields) {\n        if (day[f.key]) {\n            values[f.key] = day[f.key].reduce((a, v) => a + v, 0);\n        }\n    }\n    days.push(bar('d' + back, DAYS[d.getDay()] + ' ' + d.getDate(), DAYS_LONG[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS_LONG[d.getMonth()], values));\n});\n\nconst periods = [\n    { 'key': 'hour', 'title': 'Par heure, 24 dernières heures', 'bars': hours },\n    { 'key': 'day', 'title': 'Par jour, hier et aujourd\\'hui', 'bars': days }\n].map(p => Object.assign(p, { 'total': p.bars.reduce((a, b) => a + b.total, 0) }));\n\nnode.status({ fill: 'green', shape: 'dot', text: host + ' ' + now.toLocaleTimeString('fr-FR') });\n\nreturn {\n    'payload': {\n        'error': '',\n        'meters': meters,\n        'selected': host,\n        'fields': fields,\n        'periods': periods,\n        'updated': now.toLocaleString('fr-FR')\n    }\n};\n",
+        "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 310,
-        "y": 2300,
+        "x": 400,
+        "y": 2150,
         "wires": [
             [
-                "c8eb89f58045e15e"
-            ],
-            [
-                "d1a00b5dc10e982b"
+                "eef73305d77ac29a"
             ]
         ]
     },
     {
-        "id": "d1a00b5dc10e982b",
-        "type": "ui-dropdown",
+        "id": "eef73305d77ac29a",
+        "type": "ui-template",
         "z": "48135a54600713e8",
         "g": "c0ef7adf5b766dab",
         "group": "3b69d98ff21bd7fe",
-        "name": "ui - chart - name",
-        "label": "Sélectionner un climatiseur",
-        "tooltip": "",
+        "page": "",
+        "ui": "",
+        "name": "custom - chart - charts",
         "order": 1,
-        "width": "3",
-        "height": "1",
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<template>\n    <div class=\"dkh\">\n        <div class=\"dkh-bar\">\n            <v-select v-if=\"meters.length > 1\" class=\"dkh-select\" density=\"compact\" variant=\"outlined\" hide-details\n                label=\"Climatiseur\" :items=\"meters\" item-title=\"label\" item-value=\"value\"\n                :model-value=\"d.selected\" @update:model-value=\"select\"></v-select>\n            <span v-else-if=\"meters.length === 1\" class=\"dkh-meter\">{{ meters[0].label }}</span>\n            <div class=\"dkh-legend\" v-if=\"fields.length > 1\">\n                <span v-for=\"f in fields\" :key=\"f.key\" class=\"dkh-key\"><i :style=\"{ background: color(f.slot) }\"></i>{{ f.name }}</span>\n            </div>\n            <span class=\"dkh-updated\" v-if=\"d.updated\">Mis à jour {{ d.updated }}</span>\n            <v-btn icon=\"mdi-refresh\" variant=\"text\" size=\"small\" title=\"Actualiser\" @click=\"refresh\"></v-btn>\n        </div>\n\n        <div v-if=\"d.error\" class=\"dkh-error\">{{ d.error }}</div>\n        <div v-else-if=\"periods.length === 0\" class=\"dkh-error\">Chargement…</div>\n\n        <div class=\"dkh-grid\">\n            <div v-for=\"p in periods\" :key=\"p.key\" class=\"dkh-card\">\n                <div class=\"dkh-head\">\n                    <span class=\"dkh-title\">{{ p.title }}</span>\n                    <span class=\"dkh-total\">{{ headTotal(p) }}</span>\n                </div>\n                <div class=\"dkh-plot\">\n                <svg v-if=\"W > 0\" :width=\"W\" :height=\"H\" class=\"dkh-svg\" role=\"img\" :aria-label=\"p.title\">\n                    <g v-for=\"t in geo(p).ticks\" :key=\"'t' + t.v\">\n                        <line :x1=\"PL\" :x2=\"W - PR\" :y1=\"t.y\" :y2=\"t.y\" class=\"dkh-grid-line\" :class=\"{ 'dkh-base': t.v === 0 }\"></line>\n                        <text :x=\"PL - 6\" :y=\"t.y + 4\" text-anchor=\"end\" class=\"dkh-tick\">{{ kwh(Math.abs(t.v), geo(p).dec) }}</text>\n                    </g>\n                    <g v-for=\"(b, i) in p.bars\" :key=\"b.key\" class=\"dkh-col\" :class=\"{ 'dkh-dim': isHover(p) && hover[p.key] !== i }\"\n                        @mouseenter=\"setHover(p, i)\" @mouseleave=\"setHover(p, null)\" @click=\"setHover(p, i)\">\n                        <rect :x=\"geo(p).x(i) - geo(p).gap / 2\" :y=\"PT\" :width=\"geo(p).slot\" :height=\"H - PT - PB\" class=\"dkh-hit\"></rect>\n                        <path v-for=\"s in segs(p, b, i)\" :key=\"s.k\" :d=\"s.d\" :fill=\"s.c\"></path>\n                        <text v-if=\"showLabel(p, i)\" :x=\"geo(p).x(i) + geo(p).bw / 2\" :y=\"H - 6\" text-anchor=\"middle\" class=\"dkh-tick\">{{ b.label }}</text>\n                    </g>\n                </svg>\n                </div>\n                <div class=\"dkh-detail\" v-html=\"detail(p)\"></div>\n            </div>\n        </div>\n    </div>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            W: 0, H: 230, PL: 46, PR: 8, PT: 10, PB: 24,\n            observer: null,\n            hover: {},\n            palette: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']\n        }\n    },\n    computed: {\n        d() { return (this.msg && this.msg.payload) || {}; },\n        meters() { return this.d.meters || []; },\n        fields() { return this.d.fields || []; },\n        periods() { return this.d.periods || []; }\n    },\n    mounted() {\n        // the dashboard lowercases svg attributes (viewBox is lost),\n        // so charts are drawn in pixels at the real width of the card\n        this.resize();\n        if (window.ResizeObserver) {\n            this.observer = new ResizeObserver(() => this.resize());\n            this.observer.observe(this.$el);\n        } else {\n            window.addEventListener('resize', this.resize);\n        }\n        this.send({ topic: 'load' });\n    },\n    updated() {\n        this.resize();\n    },\n    unmounted() {\n        if (this.observer) this.observer.disconnect();\n        window.removeEventListener('resize', this.resize);\n    },\n    methods: {\n        resize() {\n            const el = this.$el && this.$el.querySelector ? this.$el.querySelector('.dkh-plot') : null;\n            const w = el ? Math.floor(el.clientWidth) : 0;\n            if (w > 0 && w !== this.W) this.W = w;\n        },\n        select(v) { this.hover = {}; this.send({ topic: 'select', payload: v }); },\n        refresh() { this.send({ topic: 'refresh' }); },\n        color(slot) { return this.palette[(slot - 1) % this.palette.length]; },\n        isHover(p) { return this.hover[p.key] !== undefined && this.hover[p.key] !== null; },\n        setHover(p, i) { this.hover = { ...this.hover, [p.key]: i }; },\n        kwh(wh, fixed) {\n            const v = (wh || 0) / 1000;\n            if (v === 0) return '0';\n            const dec = fixed !== undefined ? fixed : (v === 0 ? 0 : (v < 10 ? 2 : (v < 100 ? 1 : 0)));\n            return v.toLocaleString('fr-FR', { minimumFractionDigits: dec, maximumFractionDigits: dec });\n        },\n        // geometry of a chart: nice y scale and bar positions\n        // stacked sums above (sign 1) and below (sign -1) the axis\n        sums(b) {\n            let pos = 0, neg = 0;\n            for (const f of this.fields) {\n                const v = b.values[f.key] || 0;\n                if (f.sign < 0) neg += v; else pos += v;\n            }\n            return { pos: pos, neg: neg };\n        },\n        hasNeg() {\n            return this.fields.some(f => f.sign < 0);\n        },\n        // geometry of a chart: nice y scale and bar positions\n        geo(p) {\n            const n = Math.max(1, p.bars.length);\n            const pos = Math.max(0, ...p.bars.map(b => this.sums(b).pos));\n            const neg = Math.max(0, ...p.bars.map(b => this.sums(b).neg));\n            const range = pos + neg;\n            let step = 1000;\n            if (range > 0) {\n                const raw = range / (this.hasNeg() ? 5 : 4);\n                const mag = Math.pow(10, Math.floor(Math.log10(raw)));\n                step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw);\n            }\n            const top = Math.max(step, Math.ceil(pos / step) * step);\n            const bottom = this.hasNeg() ? Math.max(step, Math.ceil(neg / step) * step) : 0;\n            const plotH = this.H - this.PT - this.PB;\n            const slot = (this.W - this.PL - this.PR) / n;\n            const bw = Math.min(40, slot * 0.7);\n            const y = v => this.PT + plotH - ((v + bottom) / (top + bottom)) * plotH;\n            let ticks = [];\n            for (let v = -bottom; v <= top + step / 2; v += step) ticks.push({ v: Math.round(v), y: y(v) });\n            return {\n                slot: slot, bw: bw, gap: slot - bw, y: y, ticks: ticks,\n                dec: step % 1000 === 0 ? 0 : (step % 100 === 0 ? 1 : (step % 10 === 0 ? 2 : 3)),\n                x: i => this.PL + i * slot + (slot - bw) / 2\n            };\n        },\n        // stacked segments from the axis, 2px surface gap, rounded far end\n        segs(p, b, i) {\n            const g = this.geo(p);\n            const x = g.x(i);\n            let res = [];\n            for (const sign of [1, -1]) {\n                const keys = this.fields.filter(f => (f.sign < 0 ? -1 : 1) === sign && b.values[f.key] > 0);\n                let acc = 0;\n                keys.forEach((f, j) => {\n                    const near = g.y(sign * acc) - sign * (j > 0 ? 2 : 0);\n                    acc += b.values[f.key];\n                    let far = g.y(sign * acc);\n                    if (sign * (near - far) < 1) far = near - sign;\n                    const h = Math.abs(near - far);\n                    const r = j === keys.length - 1 ? Math.min(4, h, g.bw / 2) : 0;\n                    const d = 'M' + x + ',' + near + 'V' + (far + sign * r) +\n                        (r ? 'Q' + x + ',' + far + ' ' + (x + r) + ',' + far : '') +\n                        'H' + (x + g.bw - r) +\n                        (r ? 'Q' + (x + g.bw) + ',' + far + ' ' + (x + g.bw) + ',' + (far + sign * r) : '') +\n                        'V' + near + 'Z';\n                    res.push({ k: f.key, d: d, c: this.color(f.slot) });\n                });\n            }\n            return res;\n        },\n        headTotal(p) {\n            if (this.fields.length > 1 && this.hasNeg()) {\n                return this.fields.map(f => f.name + ' ' + this.kwh((p.totals || {})[f.key] || 0)).join(' · ') + ' kWh';\n            }\n            return this.kwh(p.total) + ' kWh';\n        },\n        // skip labels when they do not fit, always keep the current period\n        showLabel(p, i) {\n            const n = p.bars.length;\n            const longest = Math.max(1, ...p.bars.map(b => String(b.label).length));\n            const every = Math.max(1, Math.ceil((longest * 6.5 + 6) / this.geo(p).slot));\n            return (n - 1 - i) % every === 0;\n        },\n        // detail line: hovered bar, current period by default\n        detail(p) {\n            if (p.bars.length === 0) return '';\n            const i = this.isHover(p) ? this.hover[p.key] : p.bars.length - 1;\n            const b = p.bars[i];\n            const parts = this.fields.filter(f => b.values[f.key] !== undefined || this.hasNeg())\n                .map(f => '<i style=\"background:' + this.color(f.slot) + '\"></i>' + f.name + ' ' + this.kwh(b.values[f.key] || 0) + (this.hasNeg() ? ' kWh' : ''));\n            const head = this.hasNeg() ? '' : ' : ' + this.kwh(b.total) + ' kWh';\n            return '<b>' + b.title + (this.isHover(p) ? '' : ' (en cours)') + head + '</b>' +\n                (parts.length > 1 ? '<span>' + parts.join('</span><span>') + '</span>' : '');\n        }\n    }\n}\n</script>\n\n<style>\n.dkh { width: 100%; color: #1f1f1e; }\n.dkh-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; }\n.dkh-select { max-width: 360px; min-width: 220px; }\n.dkh-meter { font-weight: 600; }\n.dkh-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.85rem; color: #52514e; }\n.dkh-key i, .dkh-detail i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }\n.dkh-updated { margin-left: auto; font-size: 0.8rem; color: #7a7974; }\n.dkh-error { padding: 12px; border-radius: 4px; background: #f5f5f4; color: #52514e; margin-bottom: 12px; }\n.dkh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 12px; }\n.dkh-card { border: 1px solid #e3e2de; border-radius: 4px; padding: 10px 12px 8px; background: #fff; min-width: 0; }\n.dkh-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 12px; }\n.dkh-title { font-weight: 600; color: #0094ce; white-space: nowrap; }\n.dkh-total { font-size: 0.9rem; color: #52514e; margin-left: auto; }\n.dkh-plot { width: 100%; min-height: 230px; margin-top: 6px; overflow: hidden; }\n.dkh-svg { display: block; touch-action: manipulation; }\n.dkh-grid-line { stroke: #ebeae6; stroke-width: 1; }\n.dkh-base { stroke: #b5b3ad; }\n.dkh-tick { font-size: 11px; fill: #7a7974; }\n.dkh-hit { fill: transparent; cursor: pointer; }\n.dkh-col path { transition: opacity 0.15s; }\n.dkh-dim path { opacity: 0.35; }\n.dkh-detail { min-height: 2.6em; font-size: 0.85rem; color: #52514e; display: flex; flex-wrap: wrap; gap: 2px 12px; }\n.dkh-detail b { width: 100%; color: #1f1f1e; font-weight: 600; }\n</style>\n",
+        "storeOutMessages": true,
         "passthru": false,
-        "multiple": false,
-        "chips": false,
-        "clearable": false,
-        "options": [
-            {
-                "label": "",
-                "value": "",
-                "type": "str"
-            }
-        ],
-        "payload": "",
-        "topic": "topic",
-        "topicType": "msg",
+        "resendOnRefresh": true,
+        "templateScope": "local",
         "className": "",
-        "typeIsComboBox": true,
-        "msgTrigger": "onChange",
-        "x": 520,
-        "y": 2360,
+        "x": 650,
+        "y": 2150,
         "wires": [
             [
-                "3e5de0886a5f8c2c"
-            ]
-        ]
-    },
-    {
-        "id": "3e5de0886a5f8c2c",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "empty",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "nempty"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 2,
-        "x": 710,
-        "y": 2360,
-        "wires": [
-            [
-                "c8eb89f58045e15e"
-            ],
-            [
-                "7852ef286f2c2adf"
-            ]
-        ]
-    },
-    {
-        "id": "7852ef286f2c2adf",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "hide",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "",
-                "tot": "str"
-            },
-            {
-                "t": "set",
-                "p": "class",
-                "pt": "msg",
-                "to": "remove",
-                "tot": "str"
-            },
-            {
-                "t": "set",
-                "p": "enabled",
-                "pt": "msg",
-                "to": "false",
-                "tot": "bool"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1670,
-        "y": 2420,
-        "wires": [
-            [
-                "84388804b70e1254",
-                "2e4d451cf446e8b3",
-                "57154685c24a3c7c",
-                "06559300429f64a8"
-            ]
-        ]
-    },
-    {
-        "id": "a85624b31ac1f02c",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "global",
-        "rules": [
-            {
-                "t": "set",
-                "p": "#:(memoryOnly)::current_chart",
-                "pt": "flow",
-                "to": "payload",
-                "tot": "msg"
-            },
-            {
-                "t": "set",
-                "p": "topic",
-                "pt": "msg",
-                "to": "payload",
-                "tot": "msg"
-            },
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "#:(memoryOnly)::controls[msg.payload]",
-                "tot": "global"
-            },
-            {
-                "t": "set",
-                "p": "keys",
-                "pt": "msg",
-                "to": "[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]",
-                "tot": "jsonata"
-            },
-            {
-                "t": "set",
-                "p": "class",
-                "pt": "msg",
-                "to": "",
-                "tot": "str"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1030,
-        "y": 2240,
-        "wires": [
-            [
-                "763e400840edda51",
-                "2382820f9c313403",
-                "2e1b4893a4984c47",
-                "f417a301a4a68e2b",
-                "32b1f0c235b1e673"
-            ]
-        ]
-    },
-    {
-        "id": "763e400840edda51",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "curr_day_heat",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "hask",
-                "v": "curr_day_heat",
-                "vt": "str"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 1,
-        "x": 1220,
-        "y": 2120,
-        "wires": [
-            [
-                "f0cfdcaede41be95"
-            ]
-        ]
-    },
-    {
-        "id": "84388804b70e1254",
-        "type": "ui-chart",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "group": "3b69d98ff21bd7fe",
-        "name": "custom - chart - curr_day_heat",
-        "label": "Chaud aujourd'hui",
-        "order": 2,
-        "chartType": "bar",
-        "category": "topic",
-        "categoryType": "msg",
-        "xAxisLabel": "",
-        "xAxisProperty": "key",
-        "xAxisPropertyType": "property",
-        "xAxisType": "category",
-        "xAxisFormat": "",
-        "xAxisFormatType": "auto",
-        "xmin": "",
-        "xmax": "",
-        "yAxisLabel": "",
-        "yAxisProperty": "val",
-        "yAxisPropertyType": "property",
-        "ymin": "0",
-        "ymax": "",
-        "bins": 10,
-        "action": "replace",
-        "stackSeries": false,
-        "pointShape": "circle",
-        "pointRadius": 4,
-        "showLegend": false,
-        "removeOlder": 1,
-        "removeOlderUnit": "86400",
-        "removeOlderPoints": "25",
-        "colors": [
-            "#0095ff",
-            "#ff0000",
-            "#ff7f0e",
-            "#2ca02c",
-            "#a347e1",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "textColor": [
-            "#666666"
-        ],
-        "textColorDefault": true,
-        "gridColor": [
-            "#e5e5e5"
-        ],
-        "gridColorDefault": true,
-        "width": 6,
-        "height": "3",
-        "className": "",
-        "interpolation": "linear",
-        "x": 1910,
-        "y": 2120,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "2382820f9c313403",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "prev_1day_heat",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "hask",
-                "v": "prev_1day_heat",
-                "vt": "str"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 1,
-        "x": 1220,
-        "y": 2180,
-        "wires": [
-            [
-                "de359db72e3bf974"
-            ]
-        ]
-    },
-    {
-        "id": "2e4d451cf446e8b3",
-        "type": "ui-chart",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "group": "3b69d98ff21bd7fe",
-        "name": "custom - chart - prev_1day_heat",
-        "label": "Chaud hier",
-        "order": 3,
-        "chartType": "bar",
-        "category": "topic",
-        "categoryType": "msg",
-        "xAxisLabel": "",
-        "xAxisProperty": "key",
-        "xAxisPropertyType": "property",
-        "xAxisType": "category",
-        "xAxisFormat": "",
-        "xAxisFormatType": "auto",
-        "xmin": "",
-        "xmax": "",
-        "yAxisLabel": "",
-        "yAxisProperty": "val",
-        "yAxisPropertyType": "property",
-        "ymin": "0",
-        "ymax": "",
-        "bins": 10,
-        "action": "replace",
-        "stackSeries": false,
-        "pointShape": "circle",
-        "pointRadius": 4,
-        "showLegend": false,
-        "removeOlder": 1,
-        "removeOlderUnit": "86400",
-        "removeOlderPoints": "25",
-        "colors": [
-            "#0095ff",
-            "#ff0000",
-            "#ff7f0e",
-            "#2ca02c",
-            "#a347e1",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "textColor": [
-            "#666666"
-        ],
-        "textColorDefault": true,
-        "gridColor": [
-            "#e5e5e5"
-        ],
-        "gridColorDefault": true,
-        "width": 6,
-        "height": "3",
-        "className": "",
-        "interpolation": "linear",
-        "x": 1910,
-        "y": 2180,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "2e1b4893a4984c47",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "curr_day_cool",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "hask",
-                "v": "curr_day_cool",
-                "vt": "str"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 1,
-        "x": 1220,
-        "y": 2240,
-        "wires": [
-            [
-                "0fba116c15010acd"
-            ]
-        ]
-    },
-    {
-        "id": "57154685c24a3c7c",
-        "type": "ui-chart",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "group": "3b69d98ff21bd7fe",
-        "name": "custom - chart - curr_day_cool",
-        "label": "Froid aujourd'hui",
-        "order": 4,
-        "chartType": "bar",
-        "category": "topic",
-        "categoryType": "msg",
-        "xAxisLabel": "",
-        "xAxisProperty": "key",
-        "xAxisPropertyType": "property",
-        "xAxisType": "category",
-        "xAxisFormat": "",
-        "xAxisFormatType": "auto",
-        "xmin": "",
-        "xmax": "",
-        "yAxisLabel": "",
-        "yAxisProperty": "val",
-        "yAxisPropertyType": "property",
-        "ymin": "0",
-        "ymax": "",
-        "bins": 10,
-        "action": "replace",
-        "stackSeries": false,
-        "pointShape": "circle",
-        "pointRadius": 4,
-        "showLegend": false,
-        "removeOlder": 1,
-        "removeOlderUnit": "86400",
-        "removeOlderPoints": "25",
-        "colors": [
-            "#0095ff",
-            "#ff0000",
-            "#ff7f0e",
-            "#2ca02c",
-            "#a347e1",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "textColor": [
-            "#666666"
-        ],
-        "textColorDefault": true,
-        "gridColor": [
-            "#e5e5e5"
-        ],
-        "gridColorDefault": true,
-        "width": 6,
-        "height": "3",
-        "className": "",
-        "interpolation": "linear",
-        "x": 1910,
-        "y": 2240,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "f417a301a4a68e2b",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "prev_1day_cool",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "hask",
-                "v": "prev_1day_cool",
-                "vt": "str"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 1,
-        "x": 1220,
-        "y": 2300,
-        "wires": [
-            [
-                "12a03aa6dd7165cd"
-            ]
-        ]
-    },
-    {
-        "id": "06559300429f64a8",
-        "type": "ui-chart",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "group": "3b69d98ff21bd7fe",
-        "name": "custom - chart - prev_1day_cool",
-        "label": "Froid hier",
-        "order": 5,
-        "chartType": "bar",
-        "category": "topic",
-        "categoryType": "msg",
-        "xAxisLabel": "",
-        "xAxisProperty": "key",
-        "xAxisPropertyType": "property",
-        "xAxisType": "category",
-        "xAxisFormat": "",
-        "xAxisFormatType": "auto",
-        "xmin": "",
-        "xmax": "",
-        "yAxisLabel": "",
-        "yAxisProperty": "val",
-        "yAxisPropertyType": "property",
-        "ymin": "0",
-        "ymax": "",
-        "bins": 10,
-        "action": "replace",
-        "stackSeries": false,
-        "pointShape": "circle",
-        "pointRadius": 4,
-        "showLegend": false,
-        "removeOlder": 1,
-        "removeOlderUnit": "86400",
-        "removeOlderPoints": "25",
-        "colors": [
-            "#0095ff",
-            "#ff0000",
-            "#ff7f0e",
-            "#2ca02c",
-            "#a347e1",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "textColor": [
-            "#666666"
-        ],
-        "textColorDefault": true,
-        "gridColor": [
-            "#e5e5e5"
-        ],
-        "gridColorDefault": true,
-        "width": 6,
-        "height": "3",
-        "className": "",
-        "interpolation": "linear",
-        "x": 1910,
-        "y": 2300,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "10ec035142a92af2",
-        "type": "switch",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "current",
-        "property": "#:(memoryOnly)::current_chart",
-        "propertyType": "flow",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "payload",
-                "vt": "msg"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 1,
-        "x": 860,
-        "y": 2240,
-        "wires": [
-            [
-                "a85624b31ac1f02c"
-            ]
-        ]
-    },
-    {
-        "id": "32b1f0c235b1e673",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "chart",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "#:(memoryOnly)::current_chart",
-                "tot": "flow"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 530,
-        "y": 2240,
-        "wires": [
-            [
-                "976739752c4c9fd5"
+                "1a56fa9d429c238b"
             ]
         ]
     },
@@ -4172,32 +3581,6 @@
         ]
     },
     {
-        "id": "976739752c4c9fd5",
-        "type": "trigger",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "30m",
-        "op1": "",
-        "op2": "",
-        "op1type": "nul",
-        "op2type": "payl",
-        "duration": "30",
-        "extend": false,
-        "overrideDelay": false,
-        "units": "min",
-        "reset": "",
-        "bytopic": "all",
-        "topic": "topic",
-        "outputs": 1,
-        "x": 690,
-        "y": 2240,
-        "wires": [
-            [
-                "10ec035142a92af2"
-            ]
-        ]
-    },
-    {
         "id": "12be107437affcbe",
         "type": "trigger",
         "z": "48135a54600713e8",
@@ -4220,242 +3603,6 @@
         "wires": [
             [
                 "c0d229ae94f5d18f"
-            ]
-        ]
-    },
-    {
-        "id": "602e794e16cc89dd",
-        "type": "link in",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "custom - chart - data",
-        "links": [],
-        "x": 705,
-        "y": 2120,
-        "wires": [
-            [
-                "1ae0889c3294734f"
-            ]
-        ]
-    },
-    {
-        "id": "a2f287946aea18f9",
-        "type": "link out",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "custom - chart - data",
-        "mode": "return",
-        "links": [],
-        "x": 1055,
-        "y": 2120,
-        "wires": []
-    },
-    {
-        "id": "1ae0889c3294734f",
-        "type": "function",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "custom - chart - data",
-        "func": "let res = msg.payload;\nlet exists = false;\n\nif (Array.isArray(res)) {\n    msg.payload = [];\n    msg.class = '';\n    msg.enabled = true;\n\n    for (const k in res) {\n        if (res[k] > 0) {\n            exists = true;\n        }\n        msg.payload[k] = {\n            'key': k,\n            'val': res[k]\n        };\n    }\n}\n\nif (exists === false) {\n    msg.class = 'remove';\n    msg.enabled = false;\n    msg.payload = [];\n}\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 880,
-        "y": 2120,
-        "wires": [
-            [
-                "a2f287946aea18f9"
-            ]
-        ]
-    },
-    {
-        "id": "f0cfdcaede41be95",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "data",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "msg.payload.curr_day_heat.value",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1410,
-        "y": 2120,
-        "wires": [
-            [
-                "8200f72f31e4caf6"
-            ]
-        ]
-    },
-    {
-        "id": "8200f72f31e4caf6",
-        "type": "link call",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "",
-        "links": [
-            "602e794e16cc89dd"
-        ],
-        "linkType": "static",
-        "timeout": "30",
-        "x": 1620,
-        "y": 2120,
-        "wires": [
-            [
-                "84388804b70e1254"
-            ]
-        ]
-    },
-    {
-        "id": "de359db72e3bf974",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "data",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "msg.payload.prev_1day_heat.value",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1410,
-        "y": 2180,
-        "wires": [
-            [
-                "a267350c61f95127"
-            ]
-        ]
-    },
-    {
-        "id": "0fba116c15010acd",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "data",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "msg.payload.curr_day_cool.value",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1410,
-        "y": 2240,
-        "wires": [
-            [
-                "5cd45b3fd180da8a"
-            ]
-        ]
-    },
-    {
-        "id": "12a03aa6dd7165cd",
-        "type": "change",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "data",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "msg.payload.prev_1day_cool.value",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1410,
-        "y": 2300,
-        "wires": [
-            [
-                "2304cdc94811f7ae"
-            ]
-        ]
-    },
-    {
-        "id": "a267350c61f95127",
-        "type": "link call",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "",
-        "links": [
-            "602e794e16cc89dd"
-        ],
-        "linkType": "static",
-        "timeout": "30",
-        "x": 1620,
-        "y": 2180,
-        "wires": [
-            [
-                "2e4d451cf446e8b3"
-            ]
-        ]
-    },
-    {
-        "id": "5cd45b3fd180da8a",
-        "type": "link call",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "",
-        "links": [
-            "602e794e16cc89dd"
-        ],
-        "linkType": "static",
-        "timeout": "30",
-        "x": 1620,
-        "y": 2240,
-        "wires": [
-            [
-                "57154685c24a3c7c"
-            ]
-        ]
-    },
-    {
-        "id": "2304cdc94811f7ae",
-        "type": "link call",
-        "z": "48135a54600713e8",
-        "g": "c0ef7adf5b766dab",
-        "name": "",
-        "links": [
-            "602e794e16cc89dd"
-        ],
-        "linkType": "static",
-        "timeout": "30",
-        "x": 1620,
-        "y": 2300,
-        "wires": [
-            [
-                "06559300429f64a8"
             ]
         ]
     },
